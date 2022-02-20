@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>详细信息</title>
+    <div th:include="common :: commonheader"></div>
+</head>
+<body>
+<div th:include="common::picture"></div>
+<div id="app">
+    <div class="line"></div>
+    <div th:include="common :: headermenu"></div>
+    <div>
+        <div>
+            <el-empty th:image="|@{/images/products/}| + |${id}.jpg|" description="商品图片" :image-size="300">
+                <el-button type="primary" plain th:@click="|addToCar(${product.id})|">加入购物车
+                </el-button>
+                <el-button type="primary" plain th:@click="|toCar(${product.id})|">立即购买</el-button>
+                <div align="center">
+                    <el-descriptions title="商品信息" :column="4">
+                        <el-descriptions-item label="商品名" th:text="${product.name}"></el-descriptions-item>
+                        <el-descriptions-item label="商品描述" th:text="${product.description}"></el-descriptions-item>
+                        <el-descriptions-item label="是否有货">
+                            <el-tag size="small" th:text="${product.quantity} ? '有货' : '暂时缺货'"></el-tag>
+                        </el-descriptions-item>
+                        <el-descriptions-item label="单价" th:text="${product.price}"></el-descriptions-item>
+                    </el-descriptions>
+                    <a>购买数量: </a>
+                    <el-input-number v-model="num" :min="1" name="num"></el-input-number>
+                </div>
+            </el-empty>
+
+        </div>
+
+    </div>
+
+    <div th:include="common :: commonBackToTop"></div>
+</div>
+
+<div th:include="common::commonjs"></div>
+<script>
+    var Main = {
+        data() {
+            return {
+                num: 1,
+                activeIndex2: '1',
+                account: '',
+                drawer: false,
+            }
+        },
+        created() {
+            axios.get("/IGeekShopDemo/accountMessage").then((res) => {
+                this.account = res.data.data;
+            })
+        },
+        methods: {
+            toCar(id){
+                this.addToCar(id);
+                location.href='/IGeekShopDemo/ShoppingCart';
+            },
+            addToCar(id) {
+                axios({
+                    method: 'post',
+                    url: '/IGeekShopDemo/products',
+                    params: {id: id, num: this.num}
+                }).then((res) => {
+                    alert(res.data.msg);
+                })
+            },
+            handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(done) {
+                this.$confirm('确认关闭?', '是否关闭?', {
+                    confirmButtonText: '现在关掉╰（‵□′）╯',
+                    cancelButtonText: '先别关＞﹏＜'
+                }).then(() => {
+                    done();
+                }).catch(_ => {
+                });
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="commonheader">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+<div th:fragment="picture">
+    <img th:src="@{/images/IgeekLogo.png}">
+    <img th:src="@{/images/introduction.png}">
+</div>
+<!--head menu start-->
+<div th:fragment="headermenu" id="commonapp">
+    <el-menu
+            :default-active="activeIndex2"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#545c64"
+            text-color="#fff"
+            active-text-color="#ffd04b">
+        <el-menu-item index="1"><a th:href="@{/}" style="text-decoration: none">首页</a></el-menu-item>
+        <el-submenu index="2">
+            <template slot="title">商品类别</template>
+            <el-menu-item index="2-1">
+                <a  style="text-decoration: none;color: white" th:href="@{/products/{category}(category = 'book')}">图书类</a>
+            </el-menu-item>
+            <el-menu-item index="2-2">
+                <a  style="text-decoration: none;color: white" th:href="@{/products/{category}(category = 'clothing')}">服装类</a>
+            </el-menu-item>
+            <el-menu-item index="2-3">
+                <a  style="text-decoration: none;color: white" th:href="@{/products/{category}(category = 'food')}">食品类</a>
+            </el-menu-item>
+            <el-submenu index="2-4">
+                <template slot="title">电子产品</template>
+                <el-menu-item index="2-4-1">
+                    <a  style="text-decoration: none;color: white" th:href="@{/products/{category}(category = 'computer')}">电脑</a>
+                </el-menu-item>
+                <el-menu-item index="2-4-2">
+                    <a  style="text-decoration: none;color: white" th:href="@{/products/{category}(category = 'phone')}">手机</a>
+                </el-menu-item>
+                <el-menu-item index="2-4-3">
+                    <a  style="text-decoration: none;color: white" th:href="@{/products/{category}(category = 'device')}">数码产品</a>
+                </el-menu-item>
+            </el-submenu>
+        </el-submenu>
+        <el-menu-item index="3" disabled>消息中心</el-menu-item>
+        <el-menu-item index="4" v-show="account != null"><a style="text-decoration: none" th:href="@{/ShoppingCart}">我的购物车</a>
+        </el-menu-item>
+        <el-menu-item style="margin-left: 152px">
+            <el-form action="http://baidu.com/s" method="get" target="_blank">
+                <div>
+                    <label for="search">你想搜索什么?</label>
+                    <input name="wd" id="search" value="">
+                    <el-button native-type="submit" style="background-color: #545c64;color: #fff;border: none">立即搜索
+                    </el-button>
+                </div>
+            </el-form>
+        </el-menu-item>
+        <el-menu-item index="8" style="margin-left: 152px">
+            <a style="text-decoration: none" th:href="@{/orders}">订单信息</a>
+        </el-menu-item>
+        <!--用户登录前-->
+        <el-menu-item v-show="account == null"  index="5"><a style="text-decoration: none"
+                                                                                       th:href="@{/Login}">立即登录</a>
+        </el-menu-item>
+        <el-menu-item v-show="account == null" index="6"><a style="text-decoration: none"
+                                                            th:href="@{/Register}">免费注册</a></el-menu-item>
+        <!--用户登录后-->
+        <el-menu-item v-show="account != null" index="5" @click="drawer = true" type="primary">
+            你好,{{account != null ? account.username : 'null'}}
+        </el-menu-item>
+        <el-drawer
+                title="个人信息"
+                size="35%"
+                :visible.sync="drawer"
+                :before-close="handleClose">
+            <span>
+                <el-descriptions title="用户信息">
+                    <el-descriptions-item
+                            label="用户名">{{account!=null?account.username : '正在加载中'}}</el-descriptions-item>
+                    <el-descriptions-item label="手机号">15072092572</el-descriptions-item>
+                    <el-descriptions-item label="性别"><el-tag size="small">男</el-tag></el-descriptions-item>
+                    <el-descriptions-item label="备注"><el-tag size="small">学校</el-tag></el-descriptions-item>
+                    <el-descriptions-item label="出生日期">2001年4月26日</el-descriptions-item>
+                    <el-descriptions-item label="居住地">武汉市</el-descriptions-item><br>
+                </el-descriptions>
+                <el-descriptions title="座右铭">
+                </el-descriptions>
+                <template style="margin-left: 20px">
+                    <span>青春是一个短暂的美梦,&nbsp;&nbsp;当你醒来时,&nbsp;&nbsp;它早已消失无踪</span>
+                    <el-divider></el-divider>
+                    <span>要么读书、要么旅行、灵魂和身体必须有一个在路上</span>
+                    <el-divider></el-divider>
+                    <span>种一颗树最好的时间是十年前,&nbsp;&nbsp;其次是现在</span>
+                </template>
+            </span>
+        </el-drawer>
+        <el-menu-item v-show="account != null" index="6">
+            <a style="text-decoration: none" th:href="@{/exit}">退出登录</a>
+        </el-menu-item>
+
+        <el-menu-item index="7"><a class="photo" style="text-decoration: none">手机浏览</a></el-menu-item>
+    </el-menu>
+</div>
+
+<div th:fragment="commonBackToTop">
+    <!--backto top-->
+    <el-col :md="{span:10,offset:1}" :sm="24">
+        <div>
+            <el-backtop :bottom="100" :right="100">
+                <div style="{height: 100%;width: 100%;background-color: #f2f5f6;box-shadow: 0 0 6px rgba(0,0,0,.12);text-align: center;line-height: 20px;color: #1989fa;font-size: 16px;}">
+                    回到顶部
+                </div>
+            </el-backtop>
+        </div>
+    </el-col>
+</div>
+<!--head menu end-->
+
+<div th:fragment="commonjs">
+    <script th:src="@{/js/vue.js}"></script>
+    <script th:src="@{/js/jquery-3.3.1.js}"></script>
+    <script th:src="@{/js/axios.js}"></script>
+    <script th:src="@{/js/index.js}"></script>
+</div>
+
+</body>
+</html>

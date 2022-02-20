@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" >
+    <title>订单信息</title>
+    <div th:include="common :: commonheader"></div>
+</head>
+<body>
+<div th:include="common::picture"></div>
+<div id="app">
+    <div th:include="common :: headermenu"></div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div>
+        <el-table
+                :data="tableData"
+                height="250"
+                border
+                style="width: 100%">
+            <el-table-column
+                    prop="orderId"
+                    label="订单号"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="productName"
+                    label="商品名"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="unitPrice"
+                    label="商品单价">
+            </el-table-column>
+            <el-table-column
+                    prop="quantity"
+                    label="商品数量">
+            </el-table-column>
+            <el-table-column
+                    prop="orderDate"
+                    label="订单时间">
+            </el-table-column><el-table-column
+                    prop="address"
+                    label="收货地址">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="100">
+                <template slot-scope="scope">
+                    <el-button @click="handleClick('dis')" type="text" size="small">评价</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </div>
+
+    <div id="dis" style="display: none">
+        <el-rate
+                v-model="value"
+                :icon-classes="iconClasses"
+                void-icon-class="icon-rate-face-off"
+                :colors="['#99A9BF', '#F7BA2A', '#FF9900']">
+        </el-rate>
+    </div>
+
+    <!--backto top-->
+    <div th:include="common :: commonBackToTop"></div>
+</div>
+<div th:include="common::commonjs"></div>
+<script>
+    var Main = {
+        data() {
+            return {
+                tableData: [],
+                activeIndex2: '8',
+                account: '',
+                drawer: false,
+                value: null,
+                iconClasses: ['icon-rate-face-1', 'icon-rate-face-2', 'icon-rate-face-3'],
+            }
+        },
+        created() {
+            axios.get("/IGeekShopDemo/accountMessage").then((res) => {
+                this.account = res.data.data;
+            });
+            axios.get("/IGeekShopDemo/getOrder").then((res) => {
+                this.tableData = res.data.data;
+            });
+        },
+        methods: {
+            handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClick(id) {
+                var target = document.getElementById(id);
+                if (target.style.display = "none") {
+                    target.style.display = "";
+                }else{
+                    target.style.display = "none";
+                }
+            },
+            handleClose(done) {
+                this.$confirm('确认关闭?', '是否关闭?', {
+                    confirmButtonText: '现在关掉╰（‵□′）╯',
+                    cancelButtonText: '先别关＞﹏＜'
+                }).then(() => {
+                    done();
+                }).catch(_ => {
+                });
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

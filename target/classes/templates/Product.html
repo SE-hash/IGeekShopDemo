@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>商品信息</title>
+    <div th:include="common :: commonheader"></div>
+</head>
+<body>
+<div th:include="common::picture"></div>
+<div id = "app">
+    <div th:include="common :: headermenu"></div>
+
+    <div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <el-breadcrumb style="font-size: 25px">
+            <el-breadcrumb-item><a>全部商品</a></el-breadcrumb-item>
+        </el-breadcrumb>
+        <br>
+        <el-row :gutter="20">
+            <el-col :span="6" th:each="product : ${products.records}">
+                <div>
+                    <a th:href="@{/detail/{id}(id=${product.id})}">
+                        <img th:src="${product.picture}" style="width: 200px;height: 200px" alt="图片加载失败,请稍后再试!"><br>
+                    </a>
+                    <a th:text="|尝新价格: ${product.price} 元|"></a><br>
+                    <a th:text="${product.name}"></a><br>
+                    <a th:text="${product.description}"></a><br>
+                    <a th:text="|剩余库存数量: ${product.quantity}|"></a><br>
+                </div>
+            </el-col>
+        </el-row>
+        <div>
+            <div>
+                当前第[[${products.current}]]页 总计 [[${products.pages}]]页 共[[${products.total}]]条记录
+                <a style="margin-left: 70%">
+                    <el-link style="text-decoration: none"
+                             th:href="@{/(pn=${products.hasPrevious() == true ? products.current - 1 : 1})}">前一页
+                    </el-link>
+                    <a th:class="${num == products.current?'active':''}"
+                       th:each="num:${#numbers.sequence(1,products.pages)}">
+                        <a style="text-decoration: none" th:href="@{/(pn=${num})}">[[${num}]]</a>
+                    </a>
+                    <el-link style="text-decoration: none"
+                             th:href="@{/(pn=${products.hasNext() == true ? products.current + 1 : products.pages})}">
+                        后一页
+                    </el-link>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!--backto top-->
+    <div th:include="common :: commonBackToTop"></div>
+
+</div>
+
+
+<div th:include="common::commonjs"></div>
+<script>
+    var Main = {
+        data() {
+            return {
+                productCar: [],
+                activeIndex2: '2-1',
+                account: '',
+                drawer: false,
+            }
+        },
+        created() {
+            axios.get("/IGeekShopDemo/accountMessage").then((res) => {
+                this.account = res.data.data;
+            })
+        },
+        methods: {
+            toShopCar(id) {
+                axios({
+                    method: 'post',
+                    url: '/IGeekShopDemo/putProducts',
+                    params: {products: this.productCar.toString()}
+                }).then(() => {
+                    location.href = '/IGeekShopDemo/ShoppingCart';
+                })
+            },
+            addToCar(id) {
+                this.productCar.push(id);
+                alert("商品添加成功!")
+            },
+            handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(done) {
+                this.$confirm('确认关闭?', '是否关闭?', {
+                    confirmButtonText: '现在关掉╰（‵□′）╯',
+                    cancelButtonText: '先别关＞﹏＜'
+                }).then(() => {
+                    done();
+                }).catch(_ => {
+                });
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

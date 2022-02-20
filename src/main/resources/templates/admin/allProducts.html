@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>所有商品</title>
+    <div th:include="common :: commonheader"></div>
+</head>
+<body>
+<div th:include="common::picture"></div>
+<div id="app">
+    <br>
+    <br>
+    <span>所有商品信息显示如下</span>
+    <br>
+    <template>
+        <el-card>
+            <el-table :data="tableData" style="width: 100%" border ref="table" max-height="500">
+                <el-table-column label="商品名称" prop="name">
+                    <template slot-scope="scope">
+                        <el-input v-if="isEdit == scope.$index" v-model="scope.row.name" placeholder="请输入"></el-input>
+                        <span v-if="isEdit != scope.$index">{{scope.row.name}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="商品单价" prop="price">
+                    <template slot-scope="scope">
+                        <el-input v-if="isEdit == scope.$index" v-model="scope.row.price" placeholder="请输入"></el-input>
+                        <span v-if="isEdit != scope.$index">{{scope.row.price}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="描述" prop="description">
+                    <template slot-scope="scope">
+                        <el-input v-if="isEdit == scope.$index" v-model="scope.row.description"
+                                  placeholder="请输入"></el-input>
+                        <span v-if="isEdit != scope.$index">{{scope.row.description}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="商品库存" prop="quantity">
+                    <template slot-scope="scope">
+                        <el-input v-if="isEdit == scope.$index" v-model="scope.row.quantity"
+                                  placeholder="请输入"></el-input>
+                        <span v-if="isEdit != scope.$index">{{scope.row.quantity}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="250">
+                    <template slot-scope="scope">
+                        <el-button type="text" @click="handleToogleExpand(scope.row)">查看详情</el-button>
+                        <el-button type="text" @click="deleteProduct(scope.row)">删除商品</el-button>
+                        <el-button v-if="isEdit != scope.$index" type="text" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button v-if="isEdit == scope.$index" type="text" @click="save(scope.$index, scope.row)">保存</el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column type="expand" width="1">
+                    <template slot-scope="props">
+                        <el-form label-position="left" inline class="demo-table-expand">
+                            <el-form-item label="商品名称">
+                                <span>{{ props.row.name }}</span>
+                            </el-form-item>
+                            <el-form-item label=商品编号>
+                                <span>{{ props.row.id }}</span>
+                            </el-form-item>
+                            <el-form-item label="商品单价">
+                                <span>{{ props.row.price }}</span>
+                            </el-form-item>
+                            <el-form-item label="商品库存">
+                                <span>{{ props.row.quantity }}</span>
+                            </el-form-item>
+                            <el-form-item label="商品分类">
+                                <span>{{ props.row.category }}</span>
+                            </el-form-item>
+                        </el-form>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-card>
+    </template>
+</div>
+
+<div th:include="common::commonjs"></div>
+<style>
+    .demo-table-expand {
+        font-size: 0;
+    }
+
+    .demo-table-expand label {
+        width: 90px;
+        color: #99a9bf;
+    }
+
+    .demo-table-expand .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        width: 50%;
+    }
+</style>
+<script>
+    var Main = {
+        data() {
+            return {
+                tableData: [],
+                expands: [],
+                isEdit: -1,
+            }
+        },
+        created() {
+            axios.get("/IGeekShopDemo/getAllProducts").then((res) => {
+                this.tableData = res.data.data;
+            });
+        },
+        methods: {
+            deleteProduct(row) {
+                axios({
+                    method: 'post',
+                    url: '/IGeekShopDemo/deleteProduct',
+                    params: {id: row.id},
+                }).then((res) => {
+                    if (res.data.flag) {
+                        this.$message.success(res.data.msg);
+                        setTimeout(function(){
+                            location.href = '/IGeekShopDemo/allProducts';
+                        }, 2000);
+                    } else {
+                        this.$message.error(res.data.msg);
+                    }
+                })
+            },
+            handleEdit(index, row) {
+                this.isEdit = index;
+            },
+            save(index, row) {
+                this.isEdit = -1;
+                axios({
+                    method: 'post',
+                    url: '/IGeekShopDemo/updateProduct',
+                    params: {
+                        id: row.id, name: row.name, price: row.price, description: row.description,
+                        quantity: row.quantity
+                    }
+                }).then((res) => {
+                    if (res.data.flag) {
+                        this.$message.success(res.data.msg);
+                    } else {
+                        this.$message.error(res.data.msg);
+                    }
+                })
+            },
+            handleToogleExpand(row) {
+                let $table = this.$refs.table;
+                this.tableData.map((item) => {
+                    if (row.id != item.id) {
+                        $table.toggleRowExpansion(item, false);
+                    }
+                })
+                $table.toggleRowExpansion(row);
+            },
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

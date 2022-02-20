@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理页面</title>
+    <div th:include="common :: commonheader"></div>
+</head>
+<body>
+<div th:include="common::picture"></div>
+<div id="app">
+    <el-menu
+            class="el-menu-demo"
+            mode="horizontal"
+            background-color="#545c64"
+            text-color="#fff"
+            active-text-color="#ffd04b">
+        <!--用户登录前-->
+        <el-menu-item style="margin-left: 152px"><a style="text-decoration: none" th:text="${admin.ID}">{{adminAccount.ID}}</a>
+        </el-menu-item>
+        <el-menu-item style="margin-left: 152px"><a style="text-decoration : none" th:href="@{/adminExit}">安全退出</a>
+
+        </el-menu-item>
+        <el-menu-item>
+            <a style="text-decoration: none" th:href="@{/addProduct}">添加商品</a>
+        </el-menu-item>
+        <el-menu-item>
+            <a style="text-decoration: none" th:href="@{/allProducts}">查询所有商品</a>
+        </el-menu-item>
+    </el-menu>
+
+</div>
+<div th:include="common::commonjs"></div>
+<script>
+    var Main = {
+        data() {
+            return {
+                adminAccount: '',
+            }
+        },
+        created() {
+            axios.get("/IGeekShopDemo/adminMessage").then((res) => {
+                this.adminAccount = res.data.data;
+            })
+        },
+        methods: {}
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单结果</title>
+    <div th:include="common :: commonheader"></div>
+</head>
+<body>
+<div th:include="common::picture"></div>
+<div id="app">
+    <div th:include="common :: headermenu"></div>
+    <el-row style="margin-left: 360px;margin-top: 50px">
+        <el-col :sm="12" :lg="16">
+            <el-result icon="success" title="购买成功!" subTitle="详细信息请前往订单详情页面查看!">
+                <template slot="extra">
+                    <el-button type="primary" @click="toIndex()" size="medium">返回首页</el-button>
+                </template>
+                <template slot="extra">
+                    <el-button type="primary"  @click="toOrders()" size="medium">查看订单详细信息</el-button>
+                </template>
+            </el-result>
+        </el-col>
+    </el-row>
+</div>
+
+<div th:include="common::commonjs"></div>
+<script>
+    var Main = {
+        data() {
+            return {
+                productCar: [],
+                activeIndex2: '1',
+                account: '',
+                drawer: false,
+            }
+        },
+        created() {
+            axios.get("/IGeekShopDemo/accountMessage").then((res) => {
+                this.account = res.data.data;
+            })
+        },
+        methods: {
+            toIndex(){
+                location.href = '/IGeekShopDemo/';
+            },
+            toOrders(){
+                location.href = '/IGeekShopDemo/orders';
+            },
+            handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(done) {
+                this.$confirm('确认关闭?', '是否关闭?', {
+                    confirmButtonText: '现在关掉╰（‵□′）╯',
+                    cancelButtonText: '先别关＞﹏＜'
+                }).then(() => {
+                    done();
+                }).catch(_ => {
+                });
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

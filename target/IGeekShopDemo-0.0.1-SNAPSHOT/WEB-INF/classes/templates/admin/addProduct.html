@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <div th:include="common :: commonheader"></div>
+</head>
+<body>
+<div id="app">
+    <div class="grid-content bg-purple-dark">
+        <el-form :model="form" status-icon :rules="formDataRules" ref="form" label-width="80px" class="demo-ruleForm"   >
+            <el-form-item label="商品编号" prop="productID">
+                <el-input v-model="form.productID"></el-input>
+            </el-form-item>
+            <el-form-item label="商品名称" prop="productName">
+                <el-input v-model="form.productName"></el-input>
+            </el-form-item>
+            <el-form-item label="商品类别" prop="category">
+                <el-select v-model="form.category" placeholder="请选择商品类别">
+                    <el-option label="图书类" value="book"></el-option>
+                    <el-option label="服装类" value="clothing"></el-option>
+                    <el-option label="手机" value="phone"></el-option>
+                    <el-option label="电脑" value="computer"></el-option>
+                    <el-option label="数码产品" value="device"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="上架时间" >
+                <el-col :span="11" prop="date1">
+                    <el-date-picker type="date" placeholder="选择日期" v-model="form.date1"
+                                    style="width: 100%;"></el-date-picker>
+                </el-col>
+                <el-col class="line" :span="2">-</el-col>
+                <el-col :span="11" prop = "date2">
+                    <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
+                </el-col>
+            </el-form-item>
+            <el-form-item label="商品数量" prop = "productQuantity">
+                <el-input-number v-model="form.productQuantity" @change="handleChange" :min="1" :max="100000"
+                                 label="描述文字"></el-input-number>
+            </el-form-item>
+            <el-form-item label="商品价格" prop="productPrice">
+                <el-input v-model="form.productPrice"></el-input>
+            </el-form-item>
+            <el-form-item label="新增商品" prop="isNew">
+                <el-radio label="0" v-model="form.isNew">否</el-radio>
+                <el-radio label="1" v-model="form.isNew">是</el-radio>
+            </el-form-item>
+            <el-form-item label="商品描述" prop="description">
+                <el-input type="textarea" v-model="form.description"></el-input>
+            </el-form-item>
+            <el-form-item label="商品图片">
+                <form method="post" th:action="@{/upload}" enctype="multipart/form-data">
+                    <input type="text" name="filename"><br>
+                    <input type="file" name="img"><br>
+                    <input type="submit" value="提交">
+                </form>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="onSubmit('form')">立即上架</el-button>
+                <el-button>取消</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
+
+</div>
+<div th:include="common::commonjs"></div>
+<script>
+    new Vue ({
+        el: '#app',
+        data() {
+            var checkProductID = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('商品ID不能为空!'));
+                } else {
+                    callback();
+                }
+            }
+            var checkProductName = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('商品名称不能为空!'));
+                } else {
+                    callback();
+                }
+            }
+            var checkDescription = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('商品描述不能为空!'));
+                } else {
+                    callback();
+                }
+            }
+            var checkCategory = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('商品类别不能为空!'));
+                } else {
+                    callback();
+                }
+            }
+            var checkProductPrice = (rule, value, callback) => {
+                var reg = /^\d+(\.\d+)?$/;
+                if (!reg.test(value)) {
+                    return callback(new Error('商品价格只能是大于零的浮点数'));
+                } else {
+                    callback();
+                }
+            }
+            return {
+                form: {
+                    productID: '',
+                    productName: '',
+                    category: '',
+                    productQuantity: '1',
+                    date1: '',
+                    date2: '',
+                    description: '',
+                    productPrice: '',
+                    isNew: '1',
+                },
+                formDataRules: {
+                    productID: [
+                        {validator: checkProductID, trigger: 'blur'}
+                    ],
+                    productName: [{
+                        validator: checkProductName, trigger: 'blur'
+                    }],
+                    category: [{
+                        validator: checkCategory, trigger: 'blur'
+                    }],
+                    description: [{
+                        validator: checkDescription, trigger: 'blur'
+                    }],
+                    productPrice: [{
+                        validator: checkProductPrice, trigger: 'blur'
+                    }],
+                    productQuantity: [],
+                    date1: [],
+                    date2: [],
+                    isNew: [],
+                },
+            };
+        },
+        methods: {
+            onSubmit(formName,event) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        var params = new URLSearchParams();
+                        params.append('id', this.form.productID);
+                        params.append('name', this.form.productName);
+                        params.append('description', this.form.description);
+                        params.append('quantity', this.form.productQuantity);
+                        params.append('price', this.form.productPrice);
+                        params.append('category', this.form.category);
+                        params.append('isNew', this.form.isNew);
+                        axios.post("/IGeekShopDemo/addProduct", params).then((res) => {
+                            if (res.data.flag) {
+                                this.$message.success(res.data.msg);
+                                setTimeout(function () {
+                                    location.href = '/IGeekShopDemo/adminIndex';
+                                }, 2000);
+                            } else {
+                                this.$message.error(res.data.msg);
+                            }
+                        })
+                    }
+                });
+            },
+            handleChange(value) {
+                console.log(value);
+            }
+        }
+    })
+</script>
+</body>
+</html>

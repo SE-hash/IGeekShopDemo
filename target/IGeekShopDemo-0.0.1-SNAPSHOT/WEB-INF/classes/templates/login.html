@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <div th:include="common :: commonheader"></div>
+</head>
+<body>
+<div id="appLogin">
+    <el-row>
+        <el-col :span="8" :offset="8">
+            <div class="grid-content bg-purple-dark"
+                 style="background-color: #e8eee2 ;border-radius: 30px; box-shadow: 0 5px 20px 0 #99CB1E;padding: 50px;padding-left: 10px;margin-top: 35px;">
+                <h1 style="text-align: center; color: #99CB1E; margin-left: 70px;">Igeek商城用户登录</h1>
+                <el-form :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="100px" class="demo-registerForm"
+                         method="post" th:action="@{/login}">
+                    </el-alert>
+                    <el-form-item label="用户名" prop="username" name="username">
+                        <el-input type="text" name="username" v-model="loginForm.username" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password" name="password">
+                        <el-input type="password" name="password" v-model="loginForm.password" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item style="margin-left: 70px">
+                        <el-button @click="submitForm('loginForm')">登录</el-button>
+                        <el-button @click="loadRegister()">现在注册</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </el-col>
+    </el-row>
+</div>
+<script th:src="@{/js/vue.js}"></script>
+<script th:src="@{/js/jquery-3.3.1.js}"></script>
+<script th:src="@{/js/axios.js}"></script>
+<script th:src="@{/js/index.js}"></script>
+<script>
+    var Main = {
+        data() {
+            const checkUsername = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('用户名不能为空'));
+                } else {
+                    callback();
+                }
+            };
+            const validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                loginForm: {
+                    username: '',
+                    password: '',
+                },
+                rules: {
+                    username: [
+                        {validator: checkUsername, trigger: 'blur'}
+                    ],
+                    password: [
+                        {validator: validatePass, trigger: 'blur'}
+                    ],
+                }
+            };
+        },
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        var params = new URLSearchParams();
+                        params.append('username', this.loginForm.username);
+                        params.append('password', this.loginForm.password);
+                        axios.post("http://localhost:8080/IGeekShopDemo/Login", params).then((res) => {
+                            if (res.data.flag) {
+                                //登录成功
+                                this.$message.success(res.data.msg);
+                                setTimeout(function () {
+                                    location.href = 'http://localhost:8080/IGeekShopDemo/';
+                                }, 1000);
+                            } else {
+                                //登录失败
+                                this.$message.error(res.data.msg);
+                            }
+                        })
+                    }
+                });
+            },
+            loadRegister() {
+                location.href='http://localhost:8080/IGeekShopDemo/Register';
+            },
+        }
+    }
+    const Ctor = Vue.extend(Main);
+    new Ctor().$mount('#appLogin')
+</script>
+</body>
+</html>

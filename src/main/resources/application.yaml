@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    druid:
+      stat-view-servlet:
+        #开启Druid数据监控
+        enabled: true
+#        设置监控页面登陆密码
+        login-username: root
+        login-password: root
+      web-stat-filter:
+#        开启web监控
+        enabled: true
+#        监控所有请求
+        url-pattern: /*
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+      filters: stat,wall
+      aop-patterns: com.lake.springboot.*
+
+      filter:
+        stat:
+          slow-sql-millis: 2000
+          log-slow-sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
